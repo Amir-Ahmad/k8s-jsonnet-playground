@@ -1,0 +1,5 @@
+certs/
+vendor/
+
+# env file
+.env
