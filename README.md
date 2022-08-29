@@ -44,6 +44,11 @@ just tk apply apps/kube-prometheus -t 'Namespace/.*' -t 'CustomResourceDefinitio
 just tk apply apps/kube-prometheus --apply-strategy server
 ```
 
+Deploy a dummy exporter for prometheus:
+```
+just tk apply apps/dummy-exporter
+```
+
 ## Tips
 
 You can pass through tanka commands with `just tk`, and kubectl ones with `just k`
