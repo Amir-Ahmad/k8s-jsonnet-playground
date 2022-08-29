@@ -30,21 +30,12 @@ util.tankaSpec(name='hello', namespace='default') +
     service:
       ksutil.serviceFor(self.deploy)
       + service.spec.withType('ClusterIP'),
-    ingress:
-      ingress.new($._config.name)
-      + ingress.spec.withIngressClassName(globals.ingressClass)
-      + ingress.spec.withTls(
-        ingressTls.withHosts(globals.domainName)
-        + ingressTls.withSecretName(globals.tlsSecretName)
-      )
-      + ingress.spec.withRules(
-        ingressRule.withHost(globals.domainName)
-        + ingressRule.http.withPaths(
-          httpIngressPath.withPath('/hello')
-          + httpIngressPath.withPathType('Prefix')
-          + httpIngressPath.backend.service.port.withNumber($._config.containerPort)
-          + httpIngressPath.backend.service.withName($._config.name)
-        )
-      ),
+    ingress: util.newIngress(
+      name=$._config.name,
+      serviceName=$._config.name,
+      servicePortNumber=$._config.containerPort,
+      fqdn=globals.domainName,
+      path='/hello'
+    ),
   },
 }
