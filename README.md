@@ -35,9 +35,13 @@ Install a hello app (https://vcap.me/hello)
 just tk apply apps/hello
 ```
 
-Install grafana and prometheus (https://grafana.vcap.me)
+Install kube-prometheus stack (https://grafana.vcap.me)
 ```
-just tk apply apps/prom-grafana
+# Create crds and namespace
+just tk apply apps/kube-prometheus -t 'Namespace/.*' -t 'CustomResourceDefinition/.*' --apply-strategy server
+
+# Deploy kube-prometheus
+just tk apply apps/kube-prometheus --apply-strategy server
 ```
 
 ## Tips
