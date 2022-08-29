@@ -1,3 +1,6 @@
+# set shell to bash
+set shell := ["bash", "-uc"]
+
 local_domain_name := env_var_or_default('LOCAL_DOMAIN_NAME', 'vcap.me')
 cluster_name := env_var_or_default('CLUSTER_NAME', 'dev')
 kindconfig := justfile_directory() / "kindconfig.yaml"
