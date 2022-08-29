@@ -2,7 +2,7 @@ local globals = import 'globals.libsonnet';
 local k = import 'k.libsonnet';
 
 {
-  tankaSpec(name, namespace='default'):: {
+  tankaSpec(name, namespace=null):: {
     apiVersion: 'tanka.dev/v1alpha1',
     kind: 'Environment',
     metadata: {
@@ -20,6 +20,7 @@ local k = import 'k.libsonnet';
     serviceName,
     servicePortName=null,
     servicePortNumber=null,
+    namespace='default',
     path='/',
     pathType='Prefix',
     fqdn=null,
@@ -46,6 +47,7 @@ local k = import 'k.libsonnet';
 
     ingress:
       ingress.new(name)
+      + ingress.metadata.withNamespace(namespace)
       + ingress.spec.withIngressClassName(globals.ingressClass)
       + ingress.spec.withTls(
         ingressTls.withHosts(fdqn)

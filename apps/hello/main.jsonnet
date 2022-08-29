@@ -7,13 +7,8 @@ local deploy = k.apps.v1.deployment;
 local container = k.core.v1.container;
 local containerPort = k.core.v1.containerPort;
 local service = k.core.v1.service;
-local ingress = k.networking.v1.ingress;
-local ingressTls = k.networking.v1.ingressTLS;
-local ingressRule = k.networking.v1.ingressRule;
-local ingressBackend = k.networking.v1.ingressBackend;
-local httpIngressPath = k.networking.v1.httpIngressPath;
 
-util.tankaSpec(name='hello', namespace='default') +
+util.tankaSpec(name='hello') +
 {
   _config+:: {
     name: 'hello',
