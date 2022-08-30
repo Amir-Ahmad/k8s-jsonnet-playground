@@ -8,7 +8,7 @@ local container = k.core.v1.container;
 local containerPort = k.core.v1.containerPort;
 local service = k.core.v1.service;
 
-util.tankaSpec(name='hello') +
+util.tankaSpec() +
 {
   _config+:: {
     name: 'hello',

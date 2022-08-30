@@ -2,7 +2,7 @@ local globals = import 'globals.libsonnet';
 local k = import 'k.libsonnet';
 
 {
-  tankaSpec(name, namespace=null):: {
+  tankaSpec(name='default', namespace=null):: {
     apiVersion: 'tanka.dev/v1alpha1',
     kind: 'Environment',
     metadata: {
