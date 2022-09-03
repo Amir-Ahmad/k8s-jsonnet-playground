@@ -1,13 +1,14 @@
-# k8s-tanka-playground
+# k8s-jsonnet-playground
 
-Local kubernetes cluster with [kind](https://github.com/kubernetes-sigs/kind) and [ingress-nginx](https://github.com/kubernetes/ingress-nginx) that I'm using to test tanka and jsonnet.
+Local kubernetes cluster with [kind](https://github.com/kubernetes-sigs/kind) and [ingress-nginx](https://github.com/kubernetes/ingress-nginx) that I'm using to play around with jsonnet.
 
 ## Dependencies:
 - [kind](https://github.com/kubernetes-sigs/kind) to create the containerised cluster/s
 - [mkcert](https://github.com/FiloSottile/mkcert) to generate self signed certificates
 - [Just](https://github.com/casey/just) as a task runner
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- [tanka](https://github.com/grafana/tanka) and [jsonnet-bundler](https://github.com/jsonnet-bundler/jsonnet-bundler) for installing additional apps
+- [kubecfg](https://github.com/kubecfg/kubecfg) for outputting yaml from the jsonnet
+- [jsonnet-bundler](https://github.com/jsonnet-bundler/jsonnet-bundler) for vendoring jsonnet libraries
 
 ## Get started
 
@@ -23,7 +24,7 @@ just create-cert
 just create-cluster
 ```
 
-## Install apps with tanka
+## Install apps
 
 Install Jsonnet libraries to vendor/
 ```
@@ -32,23 +33,21 @@ jb install
 
 Install a hello app (https://vcap.me/hello)
 ```
-just tk apply apps/hello
+just kcfg update apps/hello/main.jsonnet
 ```
 
 Install kube-prometheus stack (https://grafana.vcap.me)
 ```
-# Create crds and namespace
-just tk apply apps/kube-prometheus -t 'Namespace/.*' -t 'CustomResourceDefinition/.*' --apply-strategy server
-
-# Deploy kube-prometheus
-just tk apply apps/kube-prometheus --apply-strategy server
+# Do a server side apply to install kubeprometheus
+# Run twice - command will fail the first time due to CRDs not being created yet
+just kcfg-server-apply apps/kube-prometheus/main.jsonnet
 ```
 
 Deploy a dummy exporter for prometheus:
 ```
-just tk apply apps/dummy-exporter
+just kcfg update apps/dummy-exporter/main.jsonnet
 ```
 
 ## Tips
 
-You can pass through tanka commands with `just tk`, and kubectl ones with `just k`
+You can pass through kubecfg commands with `just kcfg`, and kubectl ones with `just k`

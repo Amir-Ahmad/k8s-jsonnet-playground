@@ -2,18 +2,6 @@ local globals = import 'globals.libsonnet';
 local k = import 'k.libsonnet';
 
 {
-  tankaSpec(name='default', namespace=null):: {
-    apiVersion: 'tanka.dev/v1alpha1',
-    kind: 'Environment',
-    metadata: {
-      name: name,
-    },
-    spec: {
-      apiServer: std.extVar('apiServer'),
-      namespace: namespace,
-    },
-  },
-
   // helper to create an ingress with opinionated defaults
   newIngress(
     name,

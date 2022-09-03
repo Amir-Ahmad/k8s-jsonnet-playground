@@ -7,9 +7,7 @@ kindconfig := justfile_directory() / "kindconfig.yaml"
 kubeconfig := "$HOME/.kube/kindconfig"
 context := "kind-" + cluster_name
 kubectl := "kubectl --kubeconfig=" + kubeconfig + " --context " + context
-
-# List of tanka commands that need apiServer to be set, separated by |.
-tanka_server_commands := "apply|show|diff|prune|delete|status|export|eval"
+kubecfg := "kubecfg --kubeconfig=" + kubeconfig + " --context " + context + " -J lib -J vendor"
 
 # Print help
 @help:
@@ -24,24 +22,24 @@ tanka_server_commands := "apply|show|diff|prune|delete|status|export|eval"
     '*.{{local_domain_name}}' '{{local_domain_name}}' localhost 127.0.0.1
 
 # Create cluster
-@create-cluster:
+@create-cluster create-ingress="true":
     # create cluster if it doesnt exist
     if ! kind get clusters | grep -q "^{{cluster_name}}$"; then \
         kind create cluster --kubeconfig "{{kubeconfig}}" --config "{{kindconfig}}" --name "{{cluster_name}}"; \
     fi
 
-    # Create secret for certificate
-    {{kubectl}} create secret tls localcert --key certs/server.key --cert certs/server.crt \
-          --dry-run=client -o yaml | {{kubectl}} apply -f -
-
-    # Deploy ingress-nginx controller
-    {{kubectl}} apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-
-    echo "Waiting for ingress-nginx to be ready"
-    {{kubectl}} wait --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=90s
+    if [ "{{create-ingress}}" == "true" ]; then \
+        echo "Creating secret for certificate"; \
+        {{kubectl}} create secret tls localcert --key certs/server.key --cert certs/server.crt \
+            --dry-run=client -o yaml | {{kubectl}} apply -f -; \
+        echo "Deploying ingress-nginx controller"; \
+        {{kubectl}} apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml; \
+        echo "Waiting for ingress-nginx to be ready"; \
+        {{kubectl}} wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=90s; \
+    fi
 
 # Delete cluster
 @delete-cluster:
@@ -55,13 +53,10 @@ tanka_server_commands := "apply|show|diff|prune|delete|status|export|eval"
 @k *command:
     {{kubectl}} {{command}}
 
-# Pass through tanka commands
-# apiServer is grabbed from kubeconfig and passed in as an extVar
-@tk *command:
-    if [[ $(echo "{{command}}" | awk '{print $1}') == @({{tanka_server_commands}}) ]]; then \
-        apiServer=$({{kubectl}} config view \
-            -o jsonpath='{.clusters[?(@.name == "{{context}}")].cluster.server}') \
-        && KUBECONFIG={{kubeconfig}} tk {{command}} -V apiServer="$apiServer"; \
-    else \
-        tk {{command}}; \
-    fi
+# Pass through kubecfg commands
+@kcfg *command:
+    {{kubecfg}} {{command}}
+
+# Server side apply that pipelines kubecfg yaml output to kubectl
+kcfg-server-apply *app:
+    {{kubecfg}} show {{app}} | {{kubectl}} apply --server-side -f -
