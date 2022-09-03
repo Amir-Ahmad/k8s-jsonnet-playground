@@ -57,6 +57,6 @@ kubecfg := "kubecfg --kubeconfig=" + kubeconfig + " --context " + context + " -J
 @kcfg *command:
     {{kubecfg}} {{command}}
 
-# Server side apply that pipelines kubecfg yaml output to kubectl
-kcfg-server-apply *app:
+# Server side apply that pipes kubecfg yaml output to kubectl
+kcfg-sapply *app:
     {{kubecfg}} show {{app}} | {{kubectl}} apply --server-side -f -

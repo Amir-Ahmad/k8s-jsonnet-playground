@@ -40,7 +40,7 @@ Install kube-prometheus stack (https://grafana.vcap.me)
 ```
 # Do a server side apply to install kubeprometheus
 # Run twice - command will fail the first time due to CRDs not being created yet
-just kcfg-server-apply apps/kube-prometheus/main.jsonnet
+just kcfg-sapply apps/kube-prometheus/main.jsonnet
 ```
 
 Deploy a dummy exporter for prometheus:
